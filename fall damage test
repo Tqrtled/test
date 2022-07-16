@@ -33,6 +33,16 @@ Humanoid.StateChanged:Connect(function(oldstate,newstate)
 		total = CalculateDamage(magnitude)
 		
 		
+		local magnitude;
+	local total;
+	if newstate == Enum.HumanoidStateType.Landed then -- Tells when the player landed
+		--print('landed')
+		Values.DontUpdateYet = true;
+		magnitude = (Values.LastStandingPos - HRP.Position).magnitude -- measures the y position of where they fell from, and the Y position they have after they touched the ground.
+		
+		total = CalculateDamage(magnitude)
+		
+		
 		-- Here, the script checks if the total is greater than 0. If it is, then it damages the player and plays the sound.
 		if total > 0 then
 			Humanoid.Health = Humanoid.Health - total
@@ -42,3 +52,57 @@ Humanoid.StateChanged:Connect(function(oldstate,newstate)
 		Values.DontUpdateYet = false;
 	end
 end)
+		
+		-- Here, the script checks if the total is greater than 0. If it is, then it damages the player and plays the sound.
+		if total > 0 then
+			Humanoid.Health = Humanoid.Health - total
+			script.DamageSound:Play()
+		end
+		
+		Values.DontUpdateYet = false;
+	end
+end)
+
+
+
+-- The script needs this to check the state to not update the Last Standing Position Variable.
+local function getHumanoidState(h)
+	return h:GetState()
+end
+
+-- The states where the Last Standing Y Position variable will not be changed.
+local States = {
+	[Enum.HumanoidStateType.Running] = true;
+	[Enum.HumanoidStateType.RunningNoPhysics] = true;
+	[Enum.HumanoidStateType.Climbing] = true;
+	[Enum.HumanoidStateType.Ragdoll] = true;
+	[Enum.HumanoidStateType.FallingDown] = true;
+	[Enum.HumanoidStateType.Flying] = true;
+	[Enum.HumanoidStateType.GettingUp] = true;
+	[Enum.HumanoidStateType.Dead] = true;
+	[Enum.HumanoidStateType.None] = true;
+	[Enum.HumanoidStateType.Physics] = true;
+	[Enum.HumanoidStateType.Swimming] = true;
+	[Enum.HumanoidStateType.Seated] = true;
+	[Enum.HumanoidStateType.PlatformStanding] = true;
+}
+
+local Character
+
+repeat task.wait() until script.Parent.Parent:FindFirstChild("Humanoid")
+
+Character = script.Parent.Parent
+
+local Humanoid = Character:WaitForChild("Humanoid")
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local Values = require(script.Parent.Values)
+
+while true do
+	local state = getHumanoidState(Humanoid)
+	--print(state)
+	if States[state] and not Values.DontUpdateYet then
+		Values.LastStandingPos = HRP.Position
+		--print(Values.LastStandingPos)
+	end
+	task.wait()
+end
