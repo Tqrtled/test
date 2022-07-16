@@ -1,1 +1,8 @@
+local module = {}
 
+module.LastStandingPos = nil;
+module.DontUpdateYet = false;
+module.DamageMultiplication = 0.05
+module.MinimumFallDamageStuds = 75
+
+return module
