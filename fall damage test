@@ -1,0 +1,44 @@
+local Character
+
+repeat task.wait() until script.Parent:FindFirstChild("Humanoid")
+
+Character = script.Parent
+
+local Humanoid = Character:WaitForChild("Humanoid")
+local HRP = Character:WaitForChild("HumanoidRootPart")
+local Values = require(script.Values)
+
+local function CalculateDamage(Magnitude)
+	-- Calculates the amount of damage the player will take from the fall.
+	local afterminus100;
+	local totaldamage;
+	afterminus100 = Magnitude - Values.MinimumFallDamageStuds
+	if afterminus100 >= 0 then
+		totaldamage = Magnitude*Values.DamageMultiplication + 10
+	else
+		totaldamage = 0
+	end
+	
+	return totaldamage
+end
+
+Humanoid.StateChanged:Connect(function(oldstate,newstate)
+	local magnitude;
+	local total;
+	if newstate == Enum.HumanoidStateType.Landed then -- Tells when the player landed
+		--print('landed')
+		Values.DontUpdateYet = true;
+		magnitude = (Values.LastStandingPos - HRP.Position).magnitude -- measures the y position of where they fell from, and the Y position they have after they touched the ground.
+		
+		total = CalculateDamage(magnitude)
+		
+		
+		-- Here, the script checks if the total is greater than 0. If it is, then it damages the player and plays the sound.
+		if total > 0 then
+			Humanoid.Health = Humanoid.Health - total
+			script.DamageSound:Play()
+		end
+		
+		Values.DontUpdateYet = false;
+	end
+end)
